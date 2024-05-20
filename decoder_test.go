@@ -943,6 +943,49 @@ func TestDecoder_Struct(t *testing.T) {
 		}
 	}
 
+	// struct with pointer value
+	{
+		type input struct {
+			GPA    float32
+			Name   *string
+			Age    int
+			IsPass bool
+		}
+
+		type output struct {
+			GPA    float32
+			Name   *string
+			Age    int
+			IsPass bool
+			Score  float32
+			Gender string
+		}
+
+		name := "TEST"
+
+		expected := output{
+			GPA:    3.14,
+			Name:   &name,
+			Age:    10,
+			IsPass: true,
+			Score:  0,
+			Gender: "",
+		}
+
+		var result output
+
+		if err := Decode(input{
+			GPA:    3.14,
+			Name:   &name,
+			Age:    10,
+			IsPass: true,
+		}, &result); err != nil {
+			t.Error(err)
+		} else if result != expected {
+			t.Errorf("expected value is %v, but got %v", expected, result)
+		}
+	}
+
 	// nested struct
 }
 

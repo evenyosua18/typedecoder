@@ -69,6 +69,10 @@ func (d *Decoder) decode(in interface{}, out reflect.Value) (err error) {
 		return fmt.Errorf("unsupported type: %s", v.Kind())
 	}
 
+	if len(d.Errors) != 0 {
+		return d.Errors[0]
+	}
+
 	return
 }
 
@@ -297,17 +301,33 @@ func (d *Decoder) decodePtr(in interface{}, out reflect.Value) (err error) {
 
 	if isInputNil {
 		// if output is nil too
-		if out.IsNil() && out.CanSet() {
+		if !out.IsNil() && out.CanSet() {
 			out.Set(reflect.New(out.Type()).Elem())
 		}
 
 		return
 	}
 
+	// if input is not nil and the output is a pointer and have same data type with the input
+	outType := out.Type()
+	outElemType := outType.Elem()
+
+	if out.Kind() == reflect.Ptr && inVal.Type() == outElemType {
+		out.Set(reflect.ValueOf(in))
+		return
+	}
+
 	// input value is not nil
 	// create element if output is nil
-	if out.CanSet() && out.IsNil() {
-		err = d.decode(in, reflect.Indirect(reflect.New(out.Type().Elem())))
+	if out.CanSet() {
+		realOut := out
+		if realOut.IsNil() {
+			realOut = reflect.New(outElemType)
+		}
+
+		err = d.decode(in, reflect.Indirect(realOut))
+
+		out.Set(realOut)
 	} else {
 		err = d.decode(in, reflect.Indirect(out))
 	}
