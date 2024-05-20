@@ -1,6 +1,7 @@
 package typedecoder
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"testing"
@@ -948,7 +949,7 @@ func TestDecoder_Struct(t *testing.T) {
 		type input struct {
 			GPA    float32
 			Name   *string
-			Age    int
+			Age    *int
 			IsPass bool
 		}
 
@@ -962,6 +963,7 @@ func TestDecoder_Struct(t *testing.T) {
 		}
 
 		name := "TEST"
+		age := 10
 
 		expected := output{
 			GPA:    3.14,
@@ -977,8 +979,55 @@ func TestDecoder_Struct(t *testing.T) {
 		if err := Decode(input{
 			GPA:    3.14,
 			Name:   &name,
+			Age:    &age,
+			IsPass: true,
+		}, &result); err != nil {
+			t.Error(err)
+		} else if result != expected {
+			t.Errorf("expected value is %v, but got %v", expected, result)
+		}
+	}
+
+	// struct with json value
+	{
+		var jsonData = []byte(`{"Name": "john wick", "Age": 27}`)
+
+		type input struct {
+			GPA    float32
+			Name   string
+			Age    int
+			IsPass bool
+			Data   *json.RawMessage
+		}
+
+		type output struct {
+			GPA    float32
+			Name   string
+			Age    int
+			IsPass bool
+			Score  float32
+			Gender string
+			Data   *json.RawMessage
+		}
+
+		expected := output{
+			GPA:    3.14,
+			Name:   "TEST",
 			Age:    10,
 			IsPass: true,
+			Score:  0,
+			Gender: "",
+			Data:   (*json.RawMessage)(&jsonData),
+		}
+
+		var result output
+
+		if err := Decode(input{
+			GPA:    3.14,
+			Name:   "TEST",
+			Age:    10,
+			IsPass: true,
+			Data:   (*json.RawMessage)(&jsonData),
 		}, &result); err != nil {
 			t.Error(err)
 		} else if result != expected {
