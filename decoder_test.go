@@ -1064,4 +1064,19 @@ func TestDecoder_Time(t *testing.T) {
 			t.Errorf("expected value is %v, but got %v", expected, result)
 		}
 	}
+
+	// value: string | expected: time.Time
+	{
+		// set additional decode function
+		var result time.Time
+		expected, _ := time.Parse(timeFormat, "2024-09-04 11:00:00")
+
+		AddDecodeFunction(reflect.TypeOf(result).String(), TimeDecoder)
+
+		if err := Decode("2024-09-04 11:00:00", &result); err != nil {
+			t.Error(err)
+		} else if result != expected {
+
+		}
+	}
 }

@@ -28,6 +28,7 @@ func (d *Decoder) decode(in interface{}, out reflect.Value) (err error) {
 	}
 
 	// check manipulation function
+	// manipulate input value before decode
 	if d.UseManipulation && d.listManipulationFunction != nil {
 		inVal := reflect.Indirect(reflect.ValueOf(in))
 
@@ -36,6 +37,12 @@ func (d *Decoder) decode(in interface{}, out reflect.Value) (err error) {
 				d.AddError(err)
 			}
 		}
+	}
+
+	// check additional decode function
+	if d.listDecodeFunction != nil && d.listDecodeFunction[out.Type().String()] != nil {
+		err = d.listDecodeFunction[out.Type().String()](in, out)
+		return
 	}
 
 	// decode based on kind of value

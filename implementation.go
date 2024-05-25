@@ -8,6 +8,7 @@ func Decode(in, out interface{}) error {
 		UseManipulation: true,
 
 		listManipulationFunction: listManipulationFunc,
+		listDecodeFunction:       listDecodeFunc,
 	}
 
 	return decoder.Decode(in)
@@ -59,4 +60,14 @@ func AddManipulationFunction(name string, function ManipulationFunc) {
 
 	// add to map
 	listManipulationFunc[name] = function
+}
+
+func AddDecodeFunction(name string, function DecodeFunc) {
+	// create if empty
+	if listDecodeFunc == nil {
+		listDecodeFunc = make(map[string]DecodeFunc)
+	}
+
+	// add to map
+	listDecodeFunc[name] = function
 }
