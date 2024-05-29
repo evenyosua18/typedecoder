@@ -10,6 +10,12 @@ func TimeDecoder(in interface{}, out reflect.Value) (err error) {
 	// get input value
 	inVal := reflect.Indirect(reflect.ValueOf(in))
 
+	// set value if input and output have same type
+	if inVal.Kind() == out.Kind() {
+		out.Set(inVal)
+		return
+	}
+
 	switch inVal.Kind() {
 	case reflect.Int64:
 		// unix to time.Time

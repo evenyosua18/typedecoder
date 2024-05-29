@@ -514,6 +514,12 @@ func (d *Decoder) decodeStructToMap(inVal, out reflect.Value) (err error) {
 			return fmt.Errorf("got %s type, expected %s", value.Type(), out.Type())
 		}
 
+		// if type of value exist in list decode function, then directly set to map
+		if d.listDecodeFunction != nil && d.listDecodeFunction[value.Type().String()] != nil {
+			out.SetMapIndex(reflect.ValueOf(field.Name), value)
+			return
+		}
+
 		// set value to map
 		if value.Kind() == reflect.Struct {
 			// copy value
@@ -532,8 +538,9 @@ func (d *Decoder) decodeStructToMap(inVal, out reflect.Value) (err error) {
 				// add to map
 				out.SetMapIndex(reflect.ValueOf(field.Name), reflect.Indirect(addrVal))
 			}
-		} else {
+		} else if field.IsExported() {
 			// add to map
+			//return fmt.Errorf(`%v %s %v %v %v`, reflect.ValueOf(inType.Field(i)), field.Name, value, field, inVal)
 			out.SetMapIndex(reflect.ValueOf(field.Name), value)
 		}
 	}

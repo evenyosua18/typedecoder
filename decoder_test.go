@@ -612,7 +612,11 @@ func TestDecoder_MapToMap(t *testing.T) {
 func TestDecoder_StructToMap(t *testing.T) {
 	// val: struct (embed) | expected: map
 	{
+		now := time.Now()
+		AddDecodeFunction(reflect.TypeOf(now).String(), TimeDecoder)
+
 		var result map[string]interface{}
+
 		expected := map[string]interface{}{
 			"Name":     "TEST",
 			"Age":      0,
@@ -621,6 +625,7 @@ func TestDecoder_StructToMap(t *testing.T) {
 				"Code":        "+62",
 				"PhoneNumber": "123",
 			},
+			"Created": now,
 		}
 
 		if err := Decode(struct {
@@ -631,6 +636,7 @@ func TestDecoder_StructToMap(t *testing.T) {
 				Code        string
 				PhoneNumber string
 			}
+			Created time.Time
 		}{
 			Name:     "TEST",
 			NickName: "TEST",
@@ -639,6 +645,7 @@ func TestDecoder_StructToMap(t *testing.T) {
 				Code        string
 				PhoneNumber string
 			}{Code: "+62", PhoneNumber: "123"},
+			Created: now,
 		}, &result); err != nil {
 			t.Error(err)
 		} else {
