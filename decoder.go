@@ -517,7 +517,7 @@ func (d *Decoder) decodeStructToMap(inVal, out reflect.Value) (err error) {
 		// if type of value exist in list decode function, then directly set to map
 		if d.listDecodeFunction != nil && d.listDecodeFunction[value.Type().String()] != nil {
 			out.SetMapIndex(reflect.ValueOf(field.Name), value)
-			return
+			continue
 		}
 
 		// set value to map
