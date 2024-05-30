@@ -1043,6 +1043,35 @@ func TestDecoder_Struct(t *testing.T) {
 	}
 
 	// nested struct
+
+	// struct with json raw message value
+	{
+		jsonMsg, _ := json.Marshal(`{"TEST": "TEST"}`)
+
+		type responseStruct struct {
+			Test string
+			Data *json.RawMessage
+		}
+
+		var result []responseStruct
+
+		if err := Decode([]struct {
+			Data  *json.RawMessage
+			Test  string
+			Test2 string
+			Test3 int
+		}{
+			{
+				Data: (*json.RawMessage)(&jsonMsg),
+				Test: "AAA",
+			},
+		}, &result); err != nil {
+			t.Error(err)
+		} else {
+			res, _ := result[0].Data.MarshalJSON()
+			t.Log(string(res), result[0].Test)
+		}
+	}
 }
 
 func TestDecoder_Time(t *testing.T) {
