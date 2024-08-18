@@ -17,7 +17,15 @@ func TimeToStringManipulation(in interface{}) (interface{}, error) {
 	inVal := reflect.Indirect(reflect.ValueOf(in))
 
 	if inVal.Type().String() == TimeDataType {
-		return in.(time.Time).Format(timeFormat), nil
+		switch v := in.(type) {
+		case time.Time:
+			return v.Format(timeFormat), nil
+		case *time.Time:
+			if v != nil {
+				return v.Format(timeFormat), nil
+			}
+		}
+		return "", nil
 	}
 
 	return nil, errors.New("invalid type of time when trying to manipulate input")
@@ -28,7 +36,15 @@ func TimeToUnixManipulation(in interface{}) (interface{}, error) {
 	inVal := reflect.Indirect(reflect.ValueOf(in))
 
 	if inVal.Type().String() == TimeDataType {
-		return in.(time.Time).Unix(), nil
+		switch v := in.(type) {
+		case time.Time:
+			return v.Unix(), nil
+		case *time.Time:
+			if v != nil {
+				return v.Unix(), nil
+			}
+		}
+		return "", nil
 	}
 
 	return nil, errors.New("invalid type of time when trying to manipulate input")

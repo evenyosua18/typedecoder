@@ -1067,9 +1067,6 @@ func TestDecoder_Struct(t *testing.T) {
 			},
 		}, &result); err != nil {
 			t.Error(err)
-		} else {
-			res, _ := result[0].Data.MarshalJSON()
-			t.Log(string(res), result[0].Test)
 		}
 	}
 }
@@ -1112,7 +1109,31 @@ func TestDecoder_Time(t *testing.T) {
 		if err := Decode("2024-09-04 11:00:00", &result); err != nil {
 			t.Error(err)
 		} else if result != expected {
+			t.Errorf("expected value is %v, but got %v", expected, result)
+		}
+	}
 
+	// value: time in struct | expected: string in struct
+	{
+		now := time.Now()
+
+		var data = struct {
+			CreatedAt time.Time
+			DeletedAt *time.Time
+		}{
+			CreatedAt: now,
+			DeletedAt: &now,
+		}
+
+		var result = struct {
+			CreatedAt string
+			DeletedAt string
+		}{}
+
+		AddManipulationFunction(TimeDataType, TimeToStringManipulation)
+
+		if err := Decode(data, &result); err != nil {
+			t.Error(err)
 		}
 	}
 }
