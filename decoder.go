@@ -520,6 +520,12 @@ func (d *Decoder) decodeStructToMap(inVal, out reflect.Value) (err error) {
 			continue
 		}
 
+		// if type of value exist in list manipulation, then directly set to map
+		if d.UseManipulation && d.listManipulationFunction != nil && d.listManipulationFunction[value.Type().String()] != nil {
+			out.SetMapIndex(reflect.ValueOf(field.Name), value)
+			continue
+		}
+
 		// set value to map
 		if value.Kind() == reflect.Struct {
 			// copy value
