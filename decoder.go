@@ -530,6 +530,11 @@ func (d *Decoder) decodeStructToMap(inVal, out reflect.Value) (err error) {
 		if value.Kind() == reflect.Struct {
 			// copy value
 			x := reflect.New(value.Type())
+
+			if !x.CanSet() {
+				continue
+			}
+
 			x.Elem().Set(value)
 
 			// embed struct, create new addressable map
